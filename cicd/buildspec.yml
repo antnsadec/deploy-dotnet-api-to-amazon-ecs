@@ -32,7 +32,7 @@ phases:
       - echo Build started on `date`
       - echo Building the Docker image...
       
-      - docker build -t $REPOSITORY_URI --build-arg DOMDOM_ConnectionStrings_Default=$DOMDOM_ConnectionStrings_Default --build-arg DOMDOM_ConnectionStrings_Hangfire=$DOMDOM_ConnectionStrings_Hangfire --build-arg DOMDOM_Amazon_S3_BucketName=$DOMDOM_Amazon_S3_BucketName --build-arg DOMDOM_Amazon_S3_AwsAccessKeyId=$DOMDOM_Amazon_S3_AwsAccessKeyId --build-arg DOMDOM_Amazon_S3_AwsSecretAccessKey=$DOMDOM_Amazon_S3_AwsSecretAccessKey --build-arg DOMDOM_Database_Name=$DOMDOM_Database_Name --build-arg DOMDOM_Jwt_Token_Key=$DOMDOM_Jwt_Token_Key --build-arg DOMDOM_Es_Host=$DOMDOM_Es_Host --build-arg DOMDOM_Es_UserName=DOMDOM_Es_UserName --build-arg DOMDOM_Es_Password=DOMDOM_Es_Password --build-arg DOMDOM_Google_Map_Api_Key=$DOMDOM_Google_Map_Api_Key --build-arg DOMDOM_Payme_X_Api_Client=$DOMDOM_Payme_X_Api_Client --build-arg DOMDOM_Payme_Secret_Key=$DOMDOM_Payme_Secret_Key --build-arg ASPNETCORE_ENVIRONMENT=$ASPNETCORE_ENVIRONMENT .
+      - docker build -t $REPOSITORY_URI --build-arg ASPNETCORE_ENVIRONMENT=$ASPNETCORE_ENVIRONMENT .
         
       - echo Building the Docker image...  
       - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
