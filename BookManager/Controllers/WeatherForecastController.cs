@@ -33,7 +33,7 @@ namespace BookManager.Controllers
         [HttpGet(Name = "health")]
         public string HealthCheck()
         {
-            return "ok-01";
+            return "ok-011";
         }
 
         //[HttpGet(Name = "ac")]
