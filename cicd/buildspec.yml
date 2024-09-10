@@ -1,0 +1,56 @@
+version: 0.2
+env:
+  variables:
+    AWS_ACCOUNT_ID: "107908347685"
+    ECR_REPOSITORY: "example-ecs-service"
+    AWS_DEFAULT_REGION: "ap-southeast-1"
+#    
+#  secrets-manager:
+#    DATABASE_HANGFIRE: "arn:aws:secretsmanager:$AWS_DEFAULT_REGION:$AWS_ACCOUNT_ID:secret:$ASPNETCORE_ENVIRONMENT/PMHLeasing/ConnectionString:Hangfire"
+#    DATABASE_DEFAULT: "arn:aws:secretsmanager:$AWS_DEFAULT_REGION:$AWS_ACCOUNT_ID:secret:$ASPNETCORE_ENVIRONMENT/PMHLeasing/ConnectionString:Default"
+   
+phases:
+
+  install:
+    commands:
+      - curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel STS 
+      
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.ap-southeast-1.amazonaws.com/$ECR_REPOSITORY
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=build-$(echo $CODEBUILD_BUILD_ID | awk -F":" '{print $2}')
+      - echo $AWS_ACCOUNT_ID
+      - echo $REPOSITORY_URI
+      - echo $ASPNETCORE_ENVIRONMENT
+#      - echo $ASPNETCORE_ConnectionStrings_Default
+#      - echo $ASPNETCORE_ConnectionStrings_Hangfire
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      
+      - docker build -t $REPOSITORY_URI --build-arg DOMDOM_ConnectionStrings_Default=$DOMDOM_ConnectionStrings_Default --build-arg DOMDOM_ConnectionStrings_Hangfire=$DOMDOM_ConnectionStrings_Hangfire --build-arg DOMDOM_Amazon_S3_BucketName=$DOMDOM_Amazon_S3_BucketName --build-arg DOMDOM_Amazon_S3_AwsAccessKeyId=$DOMDOM_Amazon_S3_AwsAccessKeyId --build-arg DOMDOM_Amazon_S3_AwsSecretAccessKey=$DOMDOM_Amazon_S3_AwsSecretAccessKey --build-arg DOMDOM_Database_Name=$DOMDOM_Database_Name --build-arg DOMDOM_Jwt_Token_Key=$DOMDOM_Jwt_Token_Key --build-arg DOMDOM_Es_Host=$DOMDOM_Es_Host --build-arg DOMDOM_Es_UserName=DOMDOM_Es_UserName --build-arg DOMDOM_Es_Password=DOMDOM_Es_Password --build-arg DOMDOM_Google_Map_Api_Key=$DOMDOM_Google_Map_Api_Key --build-arg DOMDOM_Payme_X_Api_Client=$DOMDOM_Payme_X_Api_Client --build-arg DOMDOM_Payme_Secret_Key=$DOMDOM_Payme_Secret_Key --build-arg ASPNETCORE_ENVIRONMENT=$ASPNETCORE_ENVIRONMENT .
+        
+      - echo Building the Docker image...  
+      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
+ 
+ 
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker images...
+      - docker push $REPOSITORY_URI:latest
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - echo Writing image definitions file...
+      - printf '[{"name":"phm-domdom-api","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+
+artifacts:
+  files:
+    - imagedefinitions.json
+
+cache:
+  paths:
+    - '/root/.nuget/packages/**/*'
