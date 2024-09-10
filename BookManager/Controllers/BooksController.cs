@@ -26,5 +26,6 @@ namespace BookManager.Controllers
             await _bookService.CreateAsync(book);
             return Ok(book.Id);
         }
+       
     }
 }
