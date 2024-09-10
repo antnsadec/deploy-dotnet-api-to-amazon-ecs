@@ -13,6 +13,8 @@ namespace BookManager
             var client = new MongoClient(_settings.ConnectionString);
             var database = client.GetDatabase(_settings.DatabaseName);
             _book = database.GetCollection<Book>(_settings.BookCollectionName);
+            Console.WriteLine($"ConnectionString: {_settings.ConnectionString}");
+            Console.WriteLine($"Database: {_settings.DatabaseName}");
         }
         public async Task<List<Book>> GetAllAsync()
         {
